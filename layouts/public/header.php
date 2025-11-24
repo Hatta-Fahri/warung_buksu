@@ -1,6 +1,6 @@
 <?php
 // config/db.php sudah otomatis session_start()
-require 'config/db.php'; 
+require 'config/db.php';
 
 // Hitung jumlah item di keranjang
 $jumlah_item_di_keranjang = 0;
@@ -12,18 +12,26 @@ if (isset($_SESSION['keranjang'])) {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warung Kak Su</title>
+    <title>dapoer bunasya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .menu-hover:hover { transform: scale(1.05); transition: all 0.3s ease; }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .menu-hover:hover {
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
+
 <body class="bg-gradient-to-b from-orange-50 to-white">
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4">
@@ -32,11 +40,11 @@ if (isset($_SESSION['keranjang'])) {
                     <a href="index.php" class="flex items-center space-x-2 group">
                         <i class="fas fa-utensils text-orange-500 text-2xl group-hover:rotate-12 transition-all"></i>
                         <span class="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
-                            Warung Kak Su
+                            dapoer bunasya
                         </span>
                     </a>
                 </div>
-                
+
                 <div class="flex items-center space-x-6">
                     <a href="index.php" class="menu-hover hidden md:block text-gray-600 hover:text-orange-500 transition-colors">
                         <i class="fas fa-home mr-1"></i> Beranda

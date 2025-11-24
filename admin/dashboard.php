@@ -1,6 +1,6 @@
-<?php 
+<?php
 // Panggil header layout
-include '../layouts/admin/header.php'; 
+include '../layouts/admin/header.php';
 // ($conn dan $session sudah tersedia dari header)
 
 /*
@@ -25,23 +25,31 @@ $stat_menu = $q_menu->fetch_assoc()['total'];
  */
 
 // 2. Data Grafik Penjualan Harian (Tidak berubah)
-$daily_sales_labels = []; $daily_sales_data = [];
+$daily_sales_labels = [];
+$daily_sales_data = [];
 $q_daily_sales = $conn->query("SELECT DATE(waktu_pesan) as tanggal, SUM(total_harga) as total_penjualan FROM pesanan WHERE status_pesanan = 'Selesai' AND waktu_pesan >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(waktu_pesan) ORDER BY tanggal");
-while($row = $q_daily_sales->fetch_assoc()) { $daily_sales_labels[] = date('d/m', strtotime($row['tanggal'])); $daily_sales_data[] = $row['total_penjualan']; }
+while ($row = $q_daily_sales->fetch_assoc()) {
+    $daily_sales_labels[] = date('d/m', strtotime($row['tanggal']));
+    $daily_sales_data[] = $row['total_penjualan'];
+}
 
 // 3. Data Grafik Menu Terpopuler (Tidak berubah)
-$popular_menu_labels = []; $popular_menu_data = [];
+$popular_menu_labels = [];
+$popular_menu_data = [];
 $q_popular_menu = $conn->query("SELECT m.nama_menu, COUNT(dp.menu_id) as jumlah_terjual FROM detail_pesanan dp JOIN menu m ON dp.menu_id = m.id JOIN pesanan p ON dp.pesanan_id = p.id WHERE p.status_pesanan = 'Selesai' AND p.waktu_pesan >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) GROUP BY m.id ORDER BY jumlah_terjual DESC LIMIT 5");
-while($row = $q_popular_menu->fetch_assoc()) { $popular_menu_labels[] = $row['nama_menu']; $popular_menu_data[] = $row['jumlah_terjual']; }
+while ($row = $q_popular_menu->fetch_assoc()) {
+    $popular_menu_labels[] = $row['nama_menu'];
+    $popular_menu_data[] = $row['jumlah_terjual'];
+}
 
 // --- PERUBAHAN DI SINI: Persiapan Data Grafik Status Pesanan ---
 // 4a. Definisikan SEMUA status yang mungkin ada, dalam urutan yang diinginkan
 $all_possible_statuses = [
-    'Menunggu Verifikasi', 
-    'Diproses', 
-    'Selesai', 
+    'Menunggu Verifikasi',
+    'Diproses',
+    'Selesai',
     'Dibatalkan',          // Pastikan 'Dibatalkan' ada di sini
-    'Menunggu Pembayaran' 
+    'Menunggu Pembayaran'
 ];
 
 // 4b. Ambil data jumlah per status dari database (query tetap sama)
@@ -52,7 +60,7 @@ $q_status_dist = $conn->query("
     WHERE waktu_pesan >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     GROUP BY status_pesanan
 ");
-while($row = $q_status_dist->fetch_assoc()) {
+while ($row = $q_status_dist->fetch_assoc()) {
     $status_counts_from_db[$row['status_pesanan']] = $row['jumlah'];
 }
 
@@ -62,7 +70,7 @@ $order_status_data = [];
 foreach ($all_possible_statuses as $status) {
     $order_status_labels[] = $status; // Tambahkan label status
     // Cek apakah status ini ada di hasil query, jika ada ambil jumlahnya, jika tidak, set 0
-    $order_status_data[] = isset($status_counts_from_db[$status]) ? $status_counts_from_db[$status] : 0; 
+    $order_status_data[] = isset($status_counts_from_db[$status]) ? $status_counts_from_db[$status] : 0;
 }
 
 ?>
@@ -72,7 +80,7 @@ foreach ($all_possible_statuses as $status) {
         <i class="fas fa-user-circle text-orange-500 mr-3"></i>
         Selamat Datang, <?php echo htmlspecialchars($_SESSION['nama_lengkap']); ?>!
     </h1>
-    <p class="text-gray-600 mt-2">Ini adalah rangkuman aktivitas Warung Kak Su hari ini.</p>
+    <p class="text-gray-600 mt-2">Ini adalah rangkuman aktivitas dapoer bunasya hari ini.</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -88,7 +96,7 @@ foreach ($all_possible_statuses as $status) {
         </div>
         <p class="text-sm text-gray-600 mt-2">Pesanan menunggu dicek</p>
     </a>
-    
+
     <a href="pesanan_aktif.php" class="block bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1 border border-orange-100">
         <div class="flex items-center justify-between">
             <div>
@@ -136,7 +144,8 @@ foreach ($all_possible_statuses as $status) {
             Penjualan 7 Hari Terakhir
         </h3>
         <div class="relative h-52">
-            <canvas id="dailySalesChart"></canvas> </div>
+            <canvas id="dailySalesChart"></canvas>
+        </div>
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-md border border-orange-100">
@@ -145,7 +154,8 @@ foreach ($all_possible_statuses as $status) {
             Menu Terpopuler
         </h3>
         <div class="relative h-52">
-            <canvas id="popularMenuChart"></canvas> </div>
+            <canvas id="popularMenuChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -155,7 +165,8 @@ foreach ($all_possible_statuses as $status) {
         Distribusi Status Pesanan (30 Hari Terakhir)
     </h3>
     <div class="relative h-52 max-w-md mx-auto">
-        <canvas id="orderStatusChart"></canvas> </div>
+        <canvas id="orderStatusChart"></canvas>
+    </div>
 </div>
 
 <div class="bg-white p-8 rounded-xl shadow-lg border border-orange-100">
@@ -197,103 +208,103 @@ foreach ($all_possible_statuses as $status) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Menunggu DOM siap
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Ambil data dari PHP
-    const dailySalesLabels = <?php echo json_encode($daily_sales_labels); ?>;
-    const dailySalesData = <?php echo json_encode($daily_sales_data); ?>;
-    const popularMenuLabels = <?php echo json_encode($popular_menu_labels); ?>;
-    const popularMenuData = <?php echo json_encode($popular_menu_data); ?>;
-    const orderStatusLabels = <?php echo json_encode($order_status_labels); ?>;
-    const orderStatusData = <?php echo json_encode($order_status_data); ?>;
+    // Menunggu DOM siap
+    document.addEventListener('DOMContentLoaded', function() {
 
-    // Buat Grafik Penjualan Harian
-    new Chart(document.getElementById('dailySalesChart'), {
-        type: 'line',
-        data: {
-            labels: dailySalesLabels,
-            datasets: [{
-                label: 'Total Penjualan (Rp)',
-                data: dailySalesData,
-                borderColor: '#f97316',
-                backgroundColor: '#fff7ed',
-                tension: 0.1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // <-- INI PENTING
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                }
-            }
-        }
-    });
+        // Ambil data dari PHP
+        const dailySalesLabels = <?php echo json_encode($daily_sales_labels); ?>;
+        const dailySalesData = <?php echo json_encode($daily_sales_data); ?>;
+        const popularMenuLabels = <?php echo json_encode($popular_menu_labels); ?>;
+        const popularMenuData = <?php echo json_encode($popular_menu_data); ?>;
+        const orderStatusLabels = <?php echo json_encode($order_status_labels); ?>;
+        const orderStatusData = <?php echo json_encode($order_status_data); ?>;
 
-    // Buat Grafik Menu Terpopuler
-    new Chart(document.getElementById('popularMenuChart'), {
-        type: 'bar',
-        data: {
-            labels: popularMenuLabels,
-            datasets: [{
-                label: 'Jumlah Terjual',
-                data: popularMenuData,
-                backgroundColor: '#fed7aa',
-                borderColor: '#f97316',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // <-- INI PENTING
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                }
+        // Buat Grafik Penjualan Harian
+        new Chart(document.getElementById('dailySalesChart'), {
+            type: 'line',
+            data: {
+                labels: dailySalesLabels,
+                datasets: [{
+                    label: 'Total Penjualan (Rp)',
+                    data: dailySalesData,
+                    borderColor: '#f97316',
+                    backgroundColor: '#fff7ed',
+                    tension: 0.1,
+                    fill: true
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // <-- INI PENTING
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
                 }
             }
-        }
-    });
+        });
 
-    // Buat Grafik Status Pesanan
-    new Chart(document.getElementById('orderStatusChart'), {
-        type: 'doughnut',
-        data: {
-            labels: orderStatusLabels,
-            datasets: [{
-                data: orderStatusData,
-                backgroundColor: [
-                    '#fcd34d', // Menunggu Verifikasi
-                    '#60a5fa', // Diproses
-                    '#34d399', // Selesai
-                    '#f87171', // Dibatalkan
-                    '#9ca3af'  // Menunggu Pembayaran
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // <-- INI PENTING
-            plugins: {
-                legend: {
-                    position: 'bottom',
+        // Buat Grafik Menu Terpopuler
+        new Chart(document.getElementById('popularMenuChart'), {
+            type: 'bar',
+            data: {
+                labels: popularMenuLabels,
+                datasets: [{
+                    label: 'Jumlah Terjual',
+                    data: popularMenuData,
+                    backgroundColor: '#fed7aa',
+                    borderColor: '#f97316',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // <-- INI PENTING
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
+        });
+
+        // Buat Grafik Status Pesanan
+        new Chart(document.getElementById('orderStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: orderStatusLabels,
+                datasets: [{
+                    data: orderStatusData,
+                    backgroundColor: [
+                        '#fcd34d', // Menunggu Verifikasi
+                        '#60a5fa', // Diproses
+                        '#34d399', // Selesai
+                        '#f87171', // Dibatalkan
+                        '#9ca3af' // Menunggu Pembayaran
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // <-- INI PENTING
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
     });
-});
 </script>
 
-<?php 
+<?php
 // Tutup koneksi database
 $conn->close();
 // Panggil footer layout
-include '../layouts/admin/footer.php'; 
+include '../layouts/admin/footer.php';
 ?>

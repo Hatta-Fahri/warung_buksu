@@ -2,7 +2,7 @@
 // 1. PANGGIL KONEKSI & SESSION DULU
 // File config/db.php akan otomatis menjalankan session_start()
 // Kita panggil berdasarkan path relatif dari file admin (cth: dashboard.php)
-require_once '../config/db.php'; 
+require_once '../config/db.php';
 
 // 2. SETELAH SESSION DIMULAI, KITA CEK LOGIN
 // Cek apakah user sudah login, jika belum, lempar ke halaman login
@@ -14,31 +14,39 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Warung Kak Su</title>
+    <title>Dashboard Admin - dapoer bunasya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        #sidebar::-webkit-scrollbar { width: 4px; }
-        #sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        #sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body class="bg-gray-100">
 
-    <aside id="sidebar" 
-           class="bg-white text-gray-700 w-64 h-screen fixed top-0 left-0 z-40
+    <aside id="sidebar"
+        class="bg-white text-gray-700 w-64 h-screen fixed top-0 left-0 z-40
                   overflow-y-auto transition-transform duration-300 ease-in-out
                   -translate-x-full md:translate-x-0 border-r border-gray-200 shadow-sm">
-        
+
         <div class="p-4 border-b border-gray-200">
-            <a href="dashboard.php" class="text-2xl font-bold text-orange-600">Warung Kak Su</a>
+            <a href="dashboard.php" class="text-2xl font-bold text-orange-600">dapoer bunasya</a>
         </div>
-        
+
         <nav class="mt-4 p-2">
             <ul class="flex flex-col space-y-2">
-                
+
                 <li>
                     <?php
                     $isActive = ($current_page == 'dashboard.php');
@@ -50,7 +58,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
                         Dashboard
                     </a>
                 </li>
-                
+
                 <li>
                     <?php
                     // Jika halaman saat ini adalah 'menu.php', 'menu_tambah.php', dll.
@@ -64,7 +72,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
                         Kelola Menu
                     </a>
                 </li>
-                
+
                 <li>
                     <?php
                     // Menjadi aktif jika di 'verifikasi.php' ATAU 'verifikasi_detail.php'
@@ -85,7 +93,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
                         ?>
                     </a>
                 </li>
-                
+
                 <li>
                     <?php
                     $isActive = ($current_page == 'pesanan_aktif.php');
@@ -97,7 +105,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
                         Pesanan Aktif
                     </a>
                 </li>
-                
+
                 <li>
                     <?php
                     $isActive = ($current_page == 'laporan.php');
@@ -110,9 +118,9 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
                     </a>
                 </li>
             </ul>
-            
+
             <ul class="mt-8 border-t border-gray-200 pt-4">
-                 <li>
+                <li>
                     <a href="../logout.php" class="flex items-center px-4 py-3 rounded-lg text-white hover:bg-red-600 bg-red-500 transition-colors mx-2">
                         <i class="fas fa-sign-out-alt w-6 text-center mr-2"></i>
                         Logout
@@ -123,13 +131,13 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
     </aside>
 
     <div class="md:ml-64 flex flex-col min-h-screen">
-    
+
         <header class="md:hidden bg-white text-orange-600 p-4 shadow-md flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
             <button id="sidebar-toggle" class="text-2xl text-orange-600">
                 <i class="fas fa-bars"></i>
             </button>
-            <a href="dashboard.php" class="text-xl font-bold text-orange-600">Warung Kak Su</a>
-            <div class="w-6"></div> 
+            <a href="dashboard.php" class="text-xl font-bold text-orange-600">dapoer bunasya</a>
+            <div class="w-6"></div>
         </header>
 
         <div class="container mx-auto p-4 flex-grow">
